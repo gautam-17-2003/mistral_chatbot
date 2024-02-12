@@ -2,7 +2,6 @@ import json
 import os
 from huggingface_hub import InferenceClient
 import gradio as gr
-import pandas as pd
 import time
 my_db ={}
 client = InferenceClient(
@@ -18,7 +17,6 @@ def format_prompt(message, history):
         prompt += f" {bot_response}</s> "
         my_db[user_prompt]=bot_response
     prompt += f"[INST] {message} [/INST]"
-    
     
     return prompt
 
@@ -65,7 +63,7 @@ def generate(
 
     with open(f"{file_name}.json", "w") as json_file:
         json_file.write(json_data)
-    # os.chdir('C:\gautam\gpt cli')
+    os.chdir('C:\gautam\gpt cli')
     return output
 
 
