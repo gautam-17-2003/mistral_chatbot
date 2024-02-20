@@ -2,15 +2,16 @@
 import json
 import os
 from huggingface_hub import InferenceClient
-import gradio as gr
 import time
+
+import streamlit as st
+from streamlit_chat import message
 
 my_db ={}
 client = InferenceClient(
     # "mosaicml/mpt-7b-instruct"
-    "mistralai/Mistral-7B-Instruct-v0.1"
+    "mistralai/Mixtral-8x7B-Instruct-v0.1"
 )
-
     
 def format_prompt(message, history):
     prompt = "<s>"
@@ -23,7 +24,7 @@ def format_prompt(message, history):
     return prompt
 
 def generate(
-    prompt, history, temperature=1, max_new_tokens=256, top_p=0.95, repetition_penalty=1.0,
+    prompt, history, temperature=0.8, max_new_tokens=64, top_p=0.95, repetition_penalty=1.0,
 ):
     # temperature = float(temperature)
     # if temperature < 1e-2:
@@ -38,16 +39,19 @@ def generate(
         do_sample=True,
         seed=42,
     )
-    # print("prompt",prompt)
-    # print('history',history)
     formatted_prompt = format_prompt(prompt, history)
 
     stream = client.text_generation(formatted_prompt, **generate_kwargs, stream=True, details=True, return_full_text=False)
+    # print(next(iter(stream)))
+    print(stream)
     output = ""
+
 
     for response in stream:
         output += response.token.text
         yield output
+        
+    ###creating db
     my_db[prompt]=output
     os.chdir('./chat data')
     _file_name=""
@@ -66,15 +70,36 @@ def generate(
     with open(f"{file_name}.json", "w") as json_file:
         json_file.write(json_data)
     os.chdir('C:\gautam\gpt cli')
-    # print("output",output)
+    ###############
+    
+    print(output)
     return output   
 
 
+def main():
+    print("\nserver strarted.....")
+    st.set_page_config(
+        page_title="Your own ChatGPT",
+        page_icon="🤖"
+    )
+    
+    st.header("Your own ChatGPT 🤖")
+    message("Good Morning, How can i assist you today!")
+    with st.sidebar:
+        prompt = st.text_input("Enter your prompt:")
+    if prompt:
+        message(prompt,is_user=True)
+        history = []
+        print(True)
+        result = generate(prompt, history)
+        print(result)
+        st.write(result)   
+    
+    
+    
 
 
-gr.ChatInterface(
-    fn=generate,
-    chatbot=gr.Chatbot(show_label=False, show_share_button=False, show_copy_button=True, likeable=True, layout="panel"),
-    # additional_inputs=additional_inputs,
-    title="""AgriChat"""
-    ).launch(show_api=False)
+
+
+if __name__ == '__main__':
+    main()
