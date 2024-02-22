@@ -30,14 +30,7 @@ def generate(
     #     temperature = 1e-2
     # top_p = float(top_p)
 
-    generate_kwargs = dict(
-        temperature=temperature,
-        max_new_tokens=max_new_tokens,
-        top_p=float(top_p),
-        repetition_penalty=repetition_penalty,
-        do_sample=True,
-        seed=42,
-    )
+     
     # print("prompt",prompt)
     # print('history',history)
     formatted_prompt = format_prompt(prompt, history)
