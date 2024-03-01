@@ -6,5 +6,6 @@ def main():
     if audio_bytes:
         input_audio = st.audio(audio_bytes, format="audio/wav")
 
+
 if __name__ == "__main__":
     main()
